@@ -1,72 +1,84 @@
+<script setup>
+defineProps({
+  details: {
+    type: Array,
+    required: true
+  }
+});
+</script>
+
 <template>
-
+  <div class="flex flex-col gap-4">
     <details
-          class="group p-2 text-ctex rounded-lg">
-          <summary class="flex items-center justify-between cursor-pointer list-none">
+      v-for="(item, index) in details"
+      :key="`${item.type}-${index}`"
+      class="group p-2 text-ctex rounded-lg border border-primary"
+      open
+    >
+      <summary class="flex items-center justify-between cursor-pointer list-none">
+        <span class="font-semibold text-sm capitalize">
+          {{ item.type.replace(/_/g, ' ') }} {{ index + 1 }}
+        </span>
+        <svg
+          class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </summary>
 
-            <span class="font-semibold text-sm">Fenêtre 1</span>
+      <table class="border border-primary mt-2 text-xs w-full border-collapse">
+        <tbody>
+          <tr v-if="item.material" class="border-b border-primary">
+            <th>Matériau</th>
+            <td class="border-r border-primary p-2">{{ item.material }}</td>
 
-            <svg
-              class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
+            <th>Couleur</th>
+            <td class="border-r border-primary">{{ item.color || '-' }}</td>
 
-          </summary>
+            <th>Type de fenêtre</th>
+            <td class="border-r border-primary">{{ item.windowType || '-' }}</td>
+          </tr>
 
-          <table class="border border-primary mt-2 text-xs w-full border-collapse">
-            <tbody>
+          <tr v-if="item.room || item.installationType" class="border-b border-primary">
+            <th>Pièce</th>
+            <td class="border-r border-primary p-2">{{ item.room || '-' }}</td>
 
-                <tr class="border-b border-primary">
-                    <th>Materiau</th>
-                    <td class="border-r border-primary p-2">PVC</td>
+            <th>Type de pose</th>
+            <td class="border-r border-primary">{{ item.installationType || '-' }}</td>
+          </tr>
 
-                    <th>Couleur</th>
-                    <td class="border-r border-primary">Gris</td>
+          <tr class="border-b border-primary">
+            <th>Grille de ventilation</th>
+            <td class="border-r border-primary p-2">{{ item.ventilation || '-' }}</td>
 
-                    <th>Type de fenêtre</th>
-                    <td class="border-r border-primary">Neuf</td>
-                </tr>
+            <th>Habillage intérieur</th>
+            <td class="border-r border-primary">{{ item.intTrim || '-' }}</td>
 
-                <tr class="border-b border-primary">
-                    <th>Choix de la pièce</th>
-                    <td class="border-r border-primary p-2">Salon</td>
+            <th>Habillage extérieur</th>
+            <td class="border-r border-primary">{{ item.extTrim || '-' }}</td>
+          </tr>
 
-                    <th>Type de pose</th>
-                    <td class="border-r border-primary">Neuf</td>
-                </tr>
+          <tr class="border-b border-primary">
+            <th>Hauteur</th>
+            <td class="border-r border-primary p-2">{{ item.height || '-' }}</td>
 
-                <tr class="border-b border-primary">
-                    <th>Grille de ventilation</th>
-                    <td class="border-r border-primary p-2">Oui</td>
-                    <th>Habillage intérieur</th>
-                    <td class="border-r border-primary">Oui</td>
-                    <th>Habillage extérieur</th>
-                    <td class="border-r border-primary">Oui</td>
-                </tr>
+            <th>Largeur</th>
+            <td class="border-r border-primary">{{ item.width || '-' }}</td>
 
-                <tr class="border-b border-primary">
-                    <th>Hauteur</th>
-                    <td class="border-r border-primary p-2">1005</td>
-                    <th>Largeur</th>
-                    <td class="border-r border-primary">1007</td>
-                    <th>Longueur</th>
-                    <td class="border-r border-primary">900</td>
-                </tr>
-
-            </tbody>
-          </table>
-          
-        </details>
-
-
+            <th>Profondeur</th>
+            <td class="border-r border-primary">{{ item.depth || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+  </div>
 </template>

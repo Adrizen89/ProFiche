@@ -13,22 +13,41 @@
         </svg>
       </button>
 
-      <div class="flex flex-grow overflow-hidden">
-        <button 
-          v-for="(tab, localIndex) in visibleTabs" 
-          :key="startTabIndex + localIndex"
-          @click="setActiveTab(startTabIndex + localIndex)"
-          :class="[
-            'py-3 text-sm font-medium focus:outline-none transition-colors duration-200 whitespace-nowrap text-center flex-shrink-0',
-            activeTab === startTabIndex + localIndex 
-              ? 'bg-primary text-ctext border-t-2 border-l-2 border-r-2 border-primary inset-shadow-2xs rounded-t-lg -mb-px'
-              : 'text-gray-500 hover:text-gray-700'
-          ]"
-          :style="`width: ${tabWidth}px;`"
-        >
-          {{ tab.label }}
-        </button>
-      </div>
+      <div class="flex flex-grow overflow-hidden gap-2">
+  <div
+    v-for="(tab, localIndex) in visibleTabs"
+    :key="startTabIndex + localIndex"
+    class="relative"
+  >
+    <!-- Onglet principal -->
+    <button
+      @click="setActiveTab(startTabIndex + localIndex)"
+      :class="[
+        'py-3 text-sm font-medium focus:outline-none transition-colors duration-200 whitespace-nowrap text-center flex-shrink-0',
+        activeTab === startTabIndex + localIndex 
+          ? 'bg-primary text-ctext border-t-2 border-l-2 border-r-2 border-primary inset-shadow-2xs rounded-t-lg -mb-px'
+          : 'text-gray-500 hover:text-gray-700'
+      ]"
+      :style="`width: ${tabWidth}px;`"
+    >
+      {{ tab.label }}
+    </button>
+
+    <!-- Bouton poubelle -->
+    <button
+      @click.stop="deleteTab(tab.key)"
+      class="absolute -top-2 -right-2 bg-white text-red-500 hover:text-red-700 p-1 rounded-full shadow"
+      title="Supprimer l'onglet"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+           viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+</div>
+
 
       <button 
         v-if="filteredTabs.length > visibleTabsCount"
@@ -75,17 +94,44 @@
         class="w-1/4"
         v-model="menuiserieCounts[visibleTabs[activeTab - startTabIndex]?.key]"
         :min="1"
+        placeholder="0"
       />
   </div>
 
-  <component
+  <div
   v-for="(item, index) in menuiserieData[activeKey] || []"
   :key="`${item.type}-${item.id}`"
-  :is="visibleTabs[activeTab - startTabIndex]?.component"
-  v-model="menuiserieData[activeKey][index]"
-/>
+  class="relative"
+>
+  <div class="absolute right-0 top-0">
+    <BaseButton
+      variant="danger"
+      size="sm"
+      @click="confirmDeleteForm(item.type, index)"
+    >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+    </BaseButton>
+  </div>
+
+  <component
+    :is="visibleTabs[activeTab - startTabIndex]?.component"
+    v-model="menuiserieData[activeKey][index]"
+  />
+</div>
 
 
+<!-- Bouton d'ajout d'un nouveau formulaire -->
+<BaseButton 
+  class="mt-5" 
+  variant="secondary" 
+  @click="addForm(activeKey)"
+>
+  + Ajouter un(e) {{ formatLabel(activeKey) }}
+</BaseButton>
 
 </div>
 
@@ -185,6 +231,71 @@ const addMenuiserie = () => {
     showAdd.value = false;
   }
 };
+const addForm = (type) => {
+  if (!menuiserieData.value[type]) {
+    menuiserieData.value[type] = [];
+  }
+
+  const nextId = menuiserieData.value[type].length + 1;
+  menuiserieData.value[type].push({ id: nextId, type });
+  menuiserieCounts.value[type] = menuiserieData.value[type].length;
+};
+
+const confirmDeleteForm = async (type, index) => {
+  if (!confirm("Es-tu sûr de vouloir supprimer ce formulaire ?")) return;
+
+  // Supprime localement
+  menuiserieData.value[type].splice(index, 1);
+
+  // Mets à jour le compteur
+  menuiserieCounts.value[type] = menuiserieData.value[type].length;
+
+  // Recalculer tous les détails à enregistrer
+  const updatedDetails = Object.values(menuiserieData.value).flat();
+
+  try {
+    const fiche = await getFicheById(ficheId.value);
+    fiche.works_details = updatedDetails;
+    await updateFiche(fiche);
+    console.log("Suppression enregistrée avec succès !");
+  } catch (err) {
+    console.error("Erreur API :", err);
+    alert("La suppression n’a pas pu être enregistrée.");
+  }
+};
+
+const deleteTab = async (tabKey) => {
+  const confirmed = confirm(`Souhaitez-vous vraiment supprimer l'onglet "${formatLabel(tabKey)}" ?`);
+  if (!confirmed) return;
+
+  // Suppression côté front
+  plannedWorks.value = plannedWorks.value.filter(work => work !== tabKey);
+  delete menuiserieData.value[tabKey];
+  delete menuiserieCounts.value[tabKey];
+
+  // Suppression côté backend
+  try {
+    const fiche = await getFicheById(ficheId.value);
+
+    fiche.planned_works = plannedWorks.value;
+    fiche.works_details = (fiche.works_details || []).filter(detail => detail.type !== tabKey);
+
+    await updateFiche(fiche);
+    alert(`L'onglet "${formatLabel(tabKey)}" a bien été supprimé.`);
+  } catch (err) {
+    console.error(err);
+    alert("Erreur lors de la suppression de l'onglet.");
+  }
+
+  // Ajustement onglet actif
+  if (activeTab.value >= filteredTabs.value.length) {
+    activeTab.value = Math.max(0, filteredTabs.value.length - 1);
+  }
+};
+
+
+
+
 
 // Regénération des formulaires selon count
 watch(menuiserieCounts, (newCounts) => {
@@ -221,11 +332,29 @@ const saveUpdatedPlannedWorks = async () => {
   }
 };
 
-onMounted(() => {
-  plannedWorks.value.forEach(type => {
-    menuiserieCounts.value[type] = 1;
-    menuiserieData.value[type] = [{ id: 1, type }];
-  });
+onMounted(async() => {
+  const fiche = await getFicheById(ficheId.value);
+
+// Récupération des types à partir des works_details
+const details = fiche.works_details || [];
+
+details.forEach(item => {
+  const type = item.type;
+  if (!plannedWorks.value.includes(type)) {
+    plannedWorks.value.push(type);
+  }
+
+  if (!menuiserieData.value[type]) {
+    menuiserieData.value[type] = [];
+  }
+
+  menuiserieData.value[type].push(item);
+
+// On met à jour le nombre après avoir tout ajouté
+menuiserieCounts.value[type] = (menuiserieData.value[type] || []).length;
+
+});
+
   window.addEventListener('resize', adjustVisibleTabsCount);
   adjustVisibleTabsCount();
 });
