@@ -4,6 +4,8 @@
     <article class="flex flex-col border border-primary rounded-lg shadow-lg w-2/3 items-center gap-5 mx-auto py-10 px-8 bg-white">
       <p class="text-2xl font-bold text-ctext">{{ contact.firstname }} {{ contact.lastname }}</p>
       <p class="text-ctext-secondary">📞 {{ contact.telephone }} — 📍 {{ contact.address }}, {{ contact.city }}</p>
+      <p class="text-ctext-secondary">📅 {{ contact.date_rdv }} - ⏰ {{ contact.heure_rdv }}</p>
+      <p class="text-ctext-secondary">🏠 {{ contact.type_logement }} — 🔍 {{ contact.statut_habitation }}</p>
     </article>
 
     <!-- Formulaire dynamique -->

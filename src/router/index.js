@@ -14,7 +14,9 @@ const routes = [
   { path: "/create-fiche", component: CreateFiche },
   { path: "/fiche-in-progress/:id", name: "ficheInProgressDetails",component: FicheInProgressDetails},
   { path: "/fiche/:id", name: "ficheDetails",component: FicheDetails},
-  { path: "/historique", component: HistoriqueFiche}
+  { path: "/historique", component: HistoriqueFiche},
+
+  
 ];
 
 const router = createRouter({

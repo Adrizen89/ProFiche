@@ -68,3 +68,10 @@ export async function validerFiche(id) {
   if (!response.ok) throw new Error("Erreur lors de la validation de la fiche");
   return response.json();
 }
+
+export async function getDistinctCities() {
+  const response = await fetch(`${API_BASE_URL}/fiches/villes`);
+  if (!response.ok) throw new Error("Erreur lors de la récupération des villes");
+  return response.json();
+}
+
