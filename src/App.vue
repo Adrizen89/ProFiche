@@ -4,7 +4,7 @@ import Sidebar from "./core/layouts/Sidebar.vue";
 
 <template>
   <div class="flex">
-    <Sidebar />
+    <Sidebar v-if="route.meta.showSidebar !== false" />
     <div class="main-content">
       <router-view />
     </div>

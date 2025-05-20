@@ -11,20 +11,21 @@ import Restricted from "../core/layouts/Restricted.vue";
 
 
 const routes = [
-  { path: "/fbfichecontact", name: "PrivateHome", component: Home },
+  { path: "/fbfichecontact", name: "PrivateHome", component: Home, meta: { showSidebar: true } },
 
-  { path: "/fiche-in-progress", component: FicheInProgress },
-  { path: "/create-fiche", component: CreateFiche },
-  { path: "/fiche-in-progress/:id", name: "ficheInProgressDetails", component: FicheInProgressDetails },
-  { path: "/fiche/:id", name: "ficheDetails", component: FicheDetails },
-  { path: "/historique", component: HistoriqueFiche },
-  { path: '/', name: 'Restricted', component: Restricted },
+  { path: "/fiche-in-progress", component: FicheInProgress, meta: { showSidebar: true } },
+  { path: "/create-fiche", component: CreateFiche, meta: { showSidebar: true } },
+  { path: "/fiche-in-progress/:id", name: "ficheInProgressDetails", component: FicheInProgressDetails, meta: { showSidebar: true } },
+  { path: "/fiche/:id", name: "ficheDetails", component: FicheDetails, meta: { showSidebar: true } },
+  { path: "/historique", component: HistoriqueFiche, meta: { showSidebar: true } },
+  { path: '/', name: 'Restricted', component: Restricted, meta: { showSidebar: false }  },
 
   // 🚫 404 pour tout le reste
   {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
     component: NotFound,
+    meta: { showSidebar: true }
   }
 ];
 
