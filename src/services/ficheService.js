@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://180.149.196.191';
+const API_BASE_URL = 'https://api.adbdigital.fr';
 
 export async function createFiche(fiche) {
   const response = await fetch(`${API_BASE_URL}/fiche`, {
