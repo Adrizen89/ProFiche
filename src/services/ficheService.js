@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://api.adbdigital.fr/';
+const API_BASE_URL = 'https://api.adbdigital.fr';
 
 export async function createFiche(fiche) {
   const response = await fetch(`${API_BASE_URL}/fiche`, {
@@ -17,10 +17,17 @@ export async function getFicheById(id) {
   }  
 
 export async function getFichesEnCours() {
-  const response = await fetch(`${API_BASE_URL}/fiches/en-cours`);
-  if (!response.ok) throw new Error("Erreur lors de la récupération des fiches en cours");
-  return response.json();
+  try {
+    const response = await fetch(`${API_BASE_URL}/fiches/en-cours`);
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error("❌ Erreur dans getFichesEnCours :", err);
+    throw new Error("Erreur lors de la récupération des fiches en cours");
+  }
 }
+
+
 
 export async function getAllFiches() {
   const response = await fetch(`${API_BASE_URL}/fiches`);
